@@ -1,0 +1,6 @@
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\bin\Release\WireArrangementCalculator.dll
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\bin\Release\WireArrangementCalculator.pdb
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Release\WireArrangementCalculator.csproj.AssemblyReference.cache
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Release\WireArrangementCalculator.csproj.CoreCompileInputs.cache
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Release\WireArrangementCalculator.dll
+D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Release\WireArrangementCalculator.pdb
