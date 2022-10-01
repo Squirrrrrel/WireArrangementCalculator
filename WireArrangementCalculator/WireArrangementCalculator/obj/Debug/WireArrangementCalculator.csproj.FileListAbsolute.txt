@@ -1,6 +1,0 @@
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\bin\Debug\WireArrangementCalculator.dll
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\bin\Debug\WireArrangementCalculator.pdb
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Debug\WireArrangementCalculator.csproj.AssemblyReference.cache
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Debug\WireArrangementCalculator.csproj.CoreCompileInputs.cache
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Debug\WireArrangementCalculator.dll
-D:\Projects\repos\WireArrangementCalculator\WireArrangementCalculator\obj\Debug\WireArrangementCalculator.pdb
