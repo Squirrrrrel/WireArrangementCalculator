@@ -5,23 +5,21 @@ using System.Threading.Tasks;
 
 namespace WireArrangementCalculator
 {
-    public class Slot : ICloneable
+    public class SlotPreprocessor
     {
         public double Height { get; private set; }
-        private double _h_1;
-        private double _h_2;
-        private double _b_so;
-        private double _b_1;
-        private double _b_2;
-        private double _R;
-        private double _r;
+        public double Area { get; private set; }
+        protected double _h_1;
+        protected double _h_2;
+        protected double _b_so;
+        protected double _b_1;
+        protected double _b_2;
+        protected double _R;
+        protected double _r;
         public Point BasePoint { get; private set; }
         public double Insulation { get; private set; }
-        private Point[] _outlineBase, _innerOutlineBase;
-        public Point[] Outline { get; private set; }
-        public Point[] InnerOutline { get; private set; }
-        public Point[] InnerOutlineRotated { get; private set; }
-        public Slot(double h_slot, double h_1, double h_2,
+        internal Point[] _outlineBase { get; set; }
+        public SlotPreprocessor(double h_slot, double h_1, double h_2,
             double b_so, double b_1, double b_2,
             double R, double r, double d_iso)
         {
@@ -88,13 +86,56 @@ namespace WireArrangementCalculator
             p45_1.MirrorX(), p4.MirrorX(), p3.MirrorX(), p2.MirrorX(), p1.MirrorX()};
 
             this.BasePoint = (p5 + p5.MirrorX()) / 2.0;
+
+            var _halfSlot = new List<Point>(new Point[] { p1, p2, p3, p4, p45_1, p45_2, p45_3, p45_4, p5 });
+            this.Area = -2.0 * _getAreaByIntegration(_halfSlot, p3.X, p5.X);
+
         }
 
-        public void GetInnerOutline()
+        private double _getAreaByIntegration(List<Point> series, double x_start, double x_end)
+        {
+            double dx = 0.001;
+            double ret = 0;
+            for (double x = x_start; x < x_end; x += dx)
+            {
+                double y = _getByIntepolation(series, x);
+                ret += y * dx;
+            }
+            return ret;
+        }
+        private double _getByIntepolation(List<Point> series, double x)
+        {
+            double ret = 0.0;
+            for (int i = 0; i < series.Count - 1; i++)
+            {
+                Point p1 = series[i];
+                Point p2 = series[i + 1];
+                if ((p1.X < x) && (p2.X >= x))
+                {
+                    ret = (p2.Y - p1.Y) * (x - p1.X) / (p2.X - p1.X) + p1.Y;
+                    break;
+                }
+            }
+            return ret;
+        }
+    }
+
+    public class Slot : SlotPreprocessor, ICloneable
+    {
+        public Point[] InnerOutline { get; private set; }
+        public Point[] Outline { get; private set; }
+        public Point[] InnerOutlineRotated { get; private set; }
+
+        internal Point[] _innerOutlineBase { get; set; }
+        public double InnerArea { get; private set; }
+
+        public Slot(double h_slot, double h_1, double h_2,
+            double b_so, double b_1, double b_2,
+            double R, double r, double d_iso) : base(h_slot, h_1, h_2, b_so, b_1, b_2, R, r, d_iso)
         {
             double _rModified = (this._r > Insulation) ? this._r - Insulation : 0.001;
 
-            Slot _slotInner = new Slot(this.Height - this.Insulation, this._h_1, this._h_2,
+            SlotPreprocessor _slotInner = new SlotPreprocessor(this.Height - this.Insulation, this._h_1, this._h_2,
                 this._b_so - 2.0 * Insulation, this._b_1 - 2.0 * Insulation,
                 this._b_2 - 2.0 * Insulation, this._R,
                 _rModified, this.Insulation);
@@ -104,11 +145,13 @@ namespace WireArrangementCalculator
             {
                 this._innerOutlineBase[i - 2] = _slotInner._outlineBase[i];
             }
+
             this.InnerOutlineRotated = new Point[14];
             for (int i = 0; i < 14; i++)
             {
                 this.InnerOutlineRotated[i] = this._innerOutlineBase[i].RotateByRad(this.BasePoint, -Math.PI / 2.0) - this.BasePoint;
             }
+            this.InnerArea = _slotInner.Area;
         }
 
         public void SetAngleByRad(double angle)
@@ -118,6 +161,7 @@ namespace WireArrangementCalculator
             {
                 this.Outline[i] = this._outlineBase[i].RotateByRad(new Point(0.0, 0.0), angle);
             }
+
             this.InnerOutline = new Point[this._innerOutlineBase.Length];
             for (int i = 0; i < this._innerOutlineBase.Length; i++)
             {
@@ -129,6 +173,7 @@ namespace WireArrangementCalculator
         {
             return this.MemberwiseClone();
         }
+
     }
 
     public class WireArrangement
@@ -141,7 +186,6 @@ namespace WireArrangementCalculator
         public WireArrangement(Slot Slot)
         {
             this.Slot = (Slot)Slot.Clone();
-            this.Slot.GetInnerOutline();
         }
         private List<Wire> _getFirstRowArrangement(Point[] wireoutline, double y0, double diameter,
             double spacing_between)
@@ -371,7 +415,6 @@ namespace WireArrangementCalculator
                 List<List<Wire>> _windingsRevised = new List<List<Wire>> { };
                 for (int i = 0; i < turns; i++)
                 {
-                    //Wire[] _windingsOfTurn = new Wire[parallel_wires];
                     var _windingsOfTurn = _windings[i].ToArray();
                     double[] _windingsOfTurnHeightWeighted = new double[parallel_wires];
                     int[] _indices = new int[parallel_wires];
